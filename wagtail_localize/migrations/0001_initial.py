@@ -148,7 +148,7 @@ class Migration(migrations.Migration):
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
                         related_name="+",
-                        to=get_revision_model(),
+                        to='wagtailcore.PageRevision',
                     ),
                 ),
                 (
