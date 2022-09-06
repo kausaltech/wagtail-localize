@@ -1,11 +1,33 @@
 import React, { FunctionComponent } from 'react';
 import Icon from '../Icon';
+import gettext from 'gettext';
 import styled from 'styled-components';
+
+const StyledHeader = styled.header`
+    padding-inline-end: 20px;
+    padding-inline-start: 20px;
+    background-color: var(--color-primary);
+    color: #fff;
+
+    @media screen and (min-width: 50em) {
+        padding-inline-end: 50px;
+        padding-inline-start: 50px;
+    }
+
+    a {
+        text-decoration: none;
+    }
+`;
+
+const StyledHeaderTitle = styled.h1`
+    color: #fff;
+    font-weight: 700;
+`;
 
 const StyledButtonLink = styled.a`
     &.button--live {
         background-color: #fff;
-        color: var(--w-color--primary);
+        color: var(--color-primary);
         border-radius: 2px;
         font-size: 14px;
         font-weight: 600;
@@ -186,14 +208,109 @@ export interface BreadcrumbItem {
 }
 
 interface HeaderProps {
+    title: string;
+    subtitle?: string;
+    breadcrumb?: BreadcrumbItem[];
+    icon?: string;
+    merged?: boolean;
+    tabbed?: boolean;
+    actions?: React.ReactNode;
     meta?: React.ReactNode;
 }
 
-const Header: FunctionComponent<HeaderProps> = ({ meta }) => {
+const Header: FunctionComponent<HeaderProps> = ({
+    title,
+    subtitle,
+    breadcrumb,
+    icon,
+    merged,
+    tabbed,
+    actions,
+    meta
+}) => {
+    let classNames = [];
+    let rowClassNames = ['row'];
+
+    if (merged) {
+        classNames.push('merged');
+    }
+
+    if (tabbed) {
+        classNames.push('tab-merged');
+    } else {
+        rowClassNames.push('nice-padding');
+    }
+
+    // Wrap subtitle with <span>
+    let subtitleWrapped = <></>;
+    if (subtitle) {
+        subtitleWrapped = <span>{subtitle}</span>;
+    }
+
+    let breadcrumbRendered = <></>;
+    if (breadcrumb && breadcrumb.length > 0) {
+        let breadcrumbFirst = true;
+        breadcrumbRendered = (
+            <nav aria-label={gettext('Breadcrumb')}>
+                <ul className="breadcrumb">
+                    {breadcrumb.map(page => {
+                        const isFirst = breadcrumbFirst;
+                        breadcrumbFirst = false;
+
+                        if (page.isRoot) {
+                            // Root section is shown as a 'site' icon in place of the title
+                            return (
+                                <li key={page.id} className="home">
+                                    <a
+                                        href={page.exploreUrl}
+                                        className="icon icon-site text-replace"
+                                    >
+                                        {page.title}
+                                    </a>
+                                </li>
+                            );
+                        } else if (isFirst) {
+                            // For limited-permission users whose breadcrumb starts further down from the root, the first item displays as a 'home' icon in place of the title
+                            return (
+                                <li key={page.id} className="home">
+                                    <a
+                                        href={page.exploreUrl}
+                                        className="icon icon-home text-replace"
+                                    >
+                                        {page.title}
+                                    </a>
+                                </li>
+                            );
+                        } else {
+                            return (
+                                <li key={page.id}>
+                                    <a href={page.exploreUrl}>{page.title}</a>
+                                </li>
+                            );
+                        }
+                    })}
+                </ul>
+            </nav>
+        );
+    }
+
     return (
-        <div>
-            <ul className="row header-meta w-list-none">{meta}</ul>
-        </div>
+        <StyledHeader className={classNames.join(' ')}>
+            {breadcrumbRendered}
+            <div className={rowClassNames.join(' ')}>
+                <StyledHeaderTitle
+                    className="left col"
+                    style={{ textTransform: 'none' }}
+                >
+                    {' '}
+                    {/* TODO: Move style */}
+                    {icon && <Icon name={icon} />}
+                    {title} {subtitleWrapped}
+                </StyledHeaderTitle>
+                <div className="right">{actions}</div>
+            </div>
+            <ul className="row header-meta">{meta}</ul>
+        </StyledHeader>
     );
 };
 

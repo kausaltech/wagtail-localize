@@ -14,6 +14,7 @@ from django.db import models, transaction
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.utils.text import capfirst, slugify
 from django.utils.translation import gettext as _
@@ -32,6 +33,7 @@ from wagtail import VERSION as WAGTAIL_VERSION
 from wagtail.admin import messages
 from wagtail.admin.navigation import get_explorable_root_page
 from wagtail.admin.templatetags.wagtailadmin_tags import avatar_url
+from wagtail.admin.ui.side_panels import PagePreviewSidePanel, PageSidePanels
 from wagtail.admin.views.pages.utils import get_valid_next_url_from_request
 from wagtail.core import blocks
 from wagtail.core.fields import StreamField
@@ -44,6 +46,7 @@ from wagtail.images.models import AbstractImage
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.snippets.models import get_snippet_models
 from wagtail.snippets.permissions import get_permission_name, user_can_edit_snippet_type
+from wagtail.utils.decorators import xframe_options_sameorigin_override
 
 from wagtail_localize.compat import (
     DATE_FORMAT,
@@ -942,14 +945,21 @@ def edit_translation(request, translation, instance):
     else:
         add_convert_to_alias_url = False
 
+    has_legacy_styling = WAGTAIL_VERSION <= (4, 0)
+
+    side_panels = LocalizedPageSidePanels(request, instance, translation)
+
     return render(
         request,
         "wagtail_localize/admin/edit_translation.html",
         {
+            "side_panels": side_panels,
+            "page": instance,
             "translation": translation,
             # These props are passed directly to the TranslationEditor react component
             "props": json.dumps(
                 {
+                    "has_legacy_styling": has_legacy_styling,
                     "adminBaseUrl": reverse("wagtailadmin_home"),
                     "object": {
                         "title": str(instance),
@@ -1062,9 +1072,51 @@ def edit_translation(request, translation, instance):
                 },
                 cls=DjangoJSONEncoder,
             ),
-            "has_editor_css": WAGTAIL_VERSION <= (4, 0),
+            "has_legacy_styling": has_legacy_styling,
         },
     )
+
+
+class LocalizedPageSidePanels(PageSidePanels):
+    def __init__(self, request, page, translation):
+        super().__init__(request, page, preview_enabled=False, comments_enabled=False)
+
+        self.side_panels += [
+            LocalizedPagePreviewSidePanel(page, self.request, translation),
+        ]
+
+
+class LocalizedPagePreviewSidePanel(PagePreviewSidePanel):
+    def __init__(self, object, request, translation):
+        super().__init__(object, request)
+        self.translation = translation
+
+    def get_context_data(self, parent_context):
+        context = super().get_context_data(parent_context)
+
+        preview_modes = [
+            {
+                "mode": mode,
+                "label": label,
+                "url": reverse(
+                    "wagtail_localize:preview_translation",
+                    args=[self.translation.id],
+                )
+                if mode == self.object.default_preview_mode
+                else reverse(
+                    "wagtail_localize:preview_translation",
+                    args=[self.translation.id, mode],
+                ),
+            }
+            for mode, label in (
+                self.object.preview_modes if isinstance(self.object, Page) else []
+            )
+        ]
+
+        for mode in preview_modes:
+            context["preview_url"] = mode["url"]
+
+        return context
 
 
 def user_can_edit_instance(user, instance):
@@ -1078,6 +1130,7 @@ def user_can_edit_instance(user, instance):
         return user_can_edit_snippet_type(user, instance.__class__)
 
 
+@method_decorator(xframe_options_sameorigin_override)
 def preview_translation(request, translation_id, mode=None):
     translation = get_object_or_404(Translation, id=translation_id)
 

@@ -191,7 +191,7 @@ interface SingleLineTextAreaProps {
 
 const StyledTextArea = styled.textarea`
     border: none;
-    border-radius: 0.3125rem;
+    border-radius: 0;
     resize: none;
     white-space: normal;
 `;
@@ -247,7 +247,7 @@ const SingleLineTextArea: FunctionComponent<SingleLineTextAreaProps> = ({
 };
 
 export const BlockLabel = styled.h3`
-    color: var(--w-color-secondary-100);
+    color: #007273;
     border: 1px solid #f5f5f5;
     padding-left: 11px;
     padding-right: 11px;
@@ -269,17 +269,17 @@ const BlockSegments = styled.ul`
         &.errored {
             background-color: #fee7e8;
             // !important required to override the border-bottom rule just below
-            border: 1px solid var(--w-color-critical-100) !important;
+            border: 1px solid #cd3238 !important;
         }
 
         &.incomplete {
             // !important required to override the border-bottom rule just below
-            border-left: 5px solid var(--w-color-warning-100) !important;
+            border-left: 5px solid #f37e77 !important;
         }
 
         &.complete {
             // !important required to override the border-bottom rule just below
-            border-left: 5px solid var(--w-color-positive-100) !important;
+            border-left: 5px solid #007d7e !important;
         }
 
         &:not(:last-child) {
@@ -297,7 +297,7 @@ const BlockSegments = styled.ul`
 const SegmentFieldLabel = styled.h4`
     margin: 0;
     padding: 15px 20px;
-    background-color: var(--w-color-secondary-50);
+    color: #007273;
     font-style: normal;
     font-weight: bold;
     padding-left: 20px;
@@ -306,13 +306,6 @@ const SegmentFieldLabel = styled.h4`
 const SegmentSource = styled.p`
     padding: 15px 20px;
     font-style: italic;
-
-    &.title {
-        color: var(--w-color-grey-600);
-        font-size: 1.875rem;
-        font-weight: 800;
-        line-height: 1.3;
-    }
 `;
 
 const SegmentValue = styled.div`
@@ -332,14 +325,14 @@ const ActionButton = styled.button`
     text-transform: uppercase;
     font-size: 0.8em;
     font-weight: bold;
-    color: var(--w-color-secondary);
-    background-color: var(--w-color-secondary-50);
-    border: 2px solid var(--w-color-secondary-100);
+    color: #017373;
+    background-color: #e5f1f1;
+    border: 1px solid #6cafaf;
     border-radius: 2px;
     padding: 5px 10px;
 
     &:hover {
-        background-color: var(--w-color-secondary-75);
+        background-color: darken(#e5f1f1, 10%);
     }
 `;
 
@@ -376,14 +369,9 @@ const SegmentToolbar = styled.ul`
 
 const SegmentList = styled.ul`
     list-style-type: none;
+    padding-left: 50px;
+    padding-right: 50px;
     max-width: 1200px;
-    padding-left: 20px;
-    padding-right: 20px;
-
-    @media screen and (min-width: 800px) {
-        padding-left: 80px;
-        padding-right: 80px;
-    }
 `;
 
 interface EditorStringSegmentProps {
@@ -505,11 +493,6 @@ const EditorStringSegment: FunctionComponent<EditorStringSegmentProps> = ({
         className = 'errored';
     }
 
-    let valueClassName = '';
-    if (segment.contentPath === 'title') {
-        valueClassName = 'title';
-    }
-
     return (
         <li className={className}>
             {segment.location.subField && (
@@ -517,9 +500,7 @@ const EditorStringSegment: FunctionComponent<EditorStringSegmentProps> = ({
                     {segment.location.subField}
                 </SegmentFieldLabel>
             )}
-            <SegmentSource className={valueClassName}>
-                {segment.source}
-            </SegmentSource>
+            <SegmentSource>{segment.source}</SegmentSource>
             <SegmentValue>{value}</SegmentValue>
             <SegmentToolbar>
                 <li key="comment">{comment}</li>

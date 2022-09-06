@@ -5,10 +5,10 @@ const Title = styled.div`
     box-sizing: border-box;
     height: 40px;
     -webkit-font-smoothing: auto;
-    background-color: var(--w-color-secondary-50);
-    color: var(--w-color-secondary);
+    background: #fcf2f2;
+    color: #200200;
     text-transform: uppercase;
-    padding: 0.9em 0 0.9em 95px;
+    padding: 0.9em 0 0.9em 5em;
     font-size: 0.95em;
     margin: 0;
     line-height: 1.5em;
@@ -23,6 +23,28 @@ const Title = styled.div`
         float: none;
         color: inherit;
         font-size: inherit;
+    }
+
+    &::before {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-shadow: none;
+        font-family: wagtail;
+        text-transform: none;
+        content: '';
+        text-align: center;
+        display: block;
+        position: absolute;
+        z-index: 2;
+        font-size: 2em;
+        top: 0;
+        line-height: 1.8em;
+        left: 0;
+        width: 50px;
+        color: #fff;
+        padding: 0;
+        margin: 0;
+        background-color: #f37e77;
     }
 `;
 

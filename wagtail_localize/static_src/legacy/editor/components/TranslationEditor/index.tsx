@@ -146,6 +146,7 @@ export interface SegmentOverride {
 }
 
 export interface EditorProps {
+    has_legacy_styling: boolean;
     adminBaseUrl: string;
     csrfToken: string;
     object: {
@@ -180,6 +181,7 @@ export interface EditorProps {
         stopTranslationUrl: string;
         convertToAliasUrl: string;
     };
+    previewModes: PreviewMode[];
     machineTranslator: {
         name: string;
         url: string;

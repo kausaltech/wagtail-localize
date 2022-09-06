@@ -10,6 +10,8 @@ import { EditorProps } from '.';
 import { EditorState, EditorAction } from './reducer';
 
 const ToolboxWrapper = styled.div`
+    padding-top: 20px;
+
     &:after {
         content: '';
         display: table;
@@ -19,7 +21,9 @@ const ToolboxWrapper = styled.div`
 
 const ToolWrapper = styled.div`
     float: left;
-    margin-bottom: 40px;
+    margin-left: 50px;
+    margin-bottom: 20px;
+    min-height: 100px;
 `;
 
 const HiddenFileInput = styled.input`
@@ -78,7 +82,7 @@ const EditorToolbox: FunctionComponent<EditorToolboxProps> = ({
 
     return (
         <ToolboxWrapper>
-            <ToolWrapper className="w-tabs__panel">
+            <ToolWrapper>
                 <p>
                     {gettext('Download PO file and input translations offline')}
                 </p>
@@ -91,7 +95,7 @@ const EditorToolbox: FunctionComponent<EditorToolboxProps> = ({
                 </a>
             </ToolWrapper>
 
-            <ToolWrapper className="w-tabs__panel">
+            <ToolWrapper>
                 <p>
                     {gettext(
                         'Upload translated PO file to submit translations'
